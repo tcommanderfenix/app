@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tank Commander - Fenix Studios</title>
+    <title>Menu War Thunder Style + Intro</title>
     <style>
         /* RESET I PODSTAWY */
         * {
@@ -21,6 +21,79 @@
             overflow: hidden;
             position: relative;
         }
+
+        /* ---------------------------------------------------- */
+        /* --- SEKJA INTRO (NOWOŚĆ) --- */
+        /* ---------------------------------------------------- */
+        #intro-layer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000;
+            z-index: 99999; /* Musi przykryć wszystko */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 1.5s ease; /* Płynne znikanie całego intro */
+        }
+
+        .intro-text {
+            color: #fff;
+            font-size: 36px;
+            font-weight: bold;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            opacity: 0; /* Domyślnie niewidoczne */
+            position: absolute;
+        }
+
+        /* Animacja napisów (pojawienie się i zniknięcie) */
+        @keyframes textFadeInOut {
+            0% { opacity: 0; transform: scale(0.9); }
+            20% { opacity: 1; transform: scale(1); }
+            80% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0; transform: scale(1.1); }
+        }
+
+        .animate-text {
+            animation: textFadeInOut 3.5s forwards;
+        }
+
+        #intro-video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0;
+            transition: opacity 1s ease;
+            display: none; /* Ukryte dopóki napisy nie znikną */
+        }
+
+        /* Przycisk pomijania (opcjonalny, ukryty, ale przydatny w testach) */
+        #skip-intro {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            color: #555;
+            font-size: 12px;
+            cursor: pointer;
+            z-index: 100000;
+            border: 1px solid #333;
+            padding: 5px 10px;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+        #intro-layer:hover #skip-intro {
+            opacity: 1;
+        }
+
+        /* ---------------------------------------------------- */
+        /* --- RESZTA STYLÓW (GARAŻ) --- */
+        /* ---------------------------------------------------- */
 
         /* TŁO GARAŻU */
         .garage-background {
@@ -76,7 +149,7 @@
 
         /* MENU ZAKŁADKI */
         .menu-items {
-            position: absolute; 
+            position: absolute;
             left: 20px; 
             font-size: 14px; 
             color: #aaa;
@@ -274,7 +347,8 @@
 
         .slot-name { font-size: 11px; color: #ccc; font-weight: bold; }
         .slot-br {
-            position: absolute; top: 2px; right: 4px; font-size: 10px;
+            position: absolute;
+            top: 2px; right: 4px; font-size: 10px;
             background: #333; padding: 1px 4px; border-radius: 2px;
         }
 
@@ -463,18 +537,17 @@
         }
 
         /* ---------------------------------------------------- */
-        /* --- NOWY STYL DLA SAMOUCZKA (TUTORIAL) --- */
+        /* --- SAMOUCZEK (TUTORIAL) --- */
         /* ---------------------------------------------------- */
         
         #tutorial-container {
             position: absolute;
-            bottom: 20px; /* Lekko nad dolną krawędzią */
+            bottom: 20px; 
             left: 20px;
-            z-index: 999; /* Zawsze na wierzchu */
+            z-index: 999; 
             display: flex;
-            align-items: flex-end; /* Wyrównanie do dołu */
-            pointer-events: auto; /* Pozwala klikać w przyciski */
-            /* Ukryte domyślnie do startu animacji */
+            align-items: flex-end; 
+            pointer-events: auto;
             transform: translateX(-150%);
             transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
@@ -487,10 +560,9 @@
         .soldier-img {
             width: 140px;
             height: auto;
-            /* Efekt wycięcia i obramowania */
             filter: drop-shadow(5px 5px 10px rgba(0,0,0,0.8));
             z-index: 1001;
-            margin-right: -20px; /* Nachodzenie na tekst */
+            margin-right: -20px; 
             margin-bottom: -10px;
         }
 
@@ -499,8 +571,8 @@
             width: 450px;
             background: rgba(20, 24, 30, 0.95);
             border: 1px solid #555;
-            border-left: 4px solid #ffae00; /* Akcent kolorystyczny */
-            padding: 15px 15px 15px 30px; /* Większy padding z lewej bo obrazek */
+            border-left: 4px solid #ffae00;
+            padding: 15px 15px 15px 30px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.8);
             position: relative;
             border-radius: 4px;
@@ -596,6 +668,18 @@
 </head>
 <body>
 
+<div id="intro-layer">
+    <div id="intro-text-1" class="intro-text">© Fenix Studios 2026</div>
+    <div id="intro-text-2" class="intro-text" style="display:none;">© Tank Commander 2026</div>
+    
+    <video id="intro-video" muted>
+        <source src="wejscie.mp4" type="video/mp4">
+        Twój pzeglądarka nie obsługuje wideo.
+    </video>
+    
+    <div id="skip-intro" onclick="endIntro()">Pomiń intro</div>
+</div>
+
 <audio id="menu-music" loop>
     <source src="https://www.chosic.com/wp-content/uploads/2021/07/The-Epic-Hero-Epic-Music-Full.mp3" type="audio/mpeg">
 </audio>
@@ -631,7 +715,7 @@
             <div class="queue-title">Szukanie sesji gry...</div>
             <div id="queue-loader" class="loader"></div>
             
-            <div class="queue-counter">
+             <div class="queue-counter">
                 <span id="player-count">1</span><span class="queue-max">/20</span>
             </div>
 
@@ -720,13 +804,71 @@
             </div>
         </div>
     </div>
+    
     <script>
+        // --- LOGIKA INTRO ---
+        function runIntro() {
+            const text1 = document.getElementById('intro-text-1');
+            const text2 = document.getElementById('intro-text-2');
+            const video = document.getElementById('intro-video');
+
+            // Etap 1: Fenix Studios
+            text1.classList.add('animate-text');
+
+            // Etap 2: Tank Commander (po 3.5s)
+            setTimeout(() => {
+                text1.style.display = 'none'; // ukryj poprzedni
+                text2.style.display = 'block';
+                text2.classList.add('animate-text');
+            }, 3500);
+
+            // Etap 3: Wideo (po kolejnych 3.5s, łącznie 7s)
+            setTimeout(() => {
+                text2.style.display = 'none';
+                video.style.display = 'block';
+                
+                // Małe opóźnienie na render i płynne wejście
+                setTimeout(() => {
+                    video.style.opacity = 1;
+                    video.play().catch(e => console.log("Autoplay blocked:", e));
+                    // Odmutuj jeśli przeglądarka pozwoli, inaczej będzie cicho
+                    video.muted = false; 
+                }, 100);
+
+            }, 7000);
+
+            // Etap 4: Koniec wideo
+            video.onended = () => {
+                endIntro();
+            };
+        }
+
+        function endIntro() {
+            const layer = document.getElementById('intro-layer');
+            const video = document.getElementById('intro-video');
+            
+            // Wycisz i zatrzymaj wideo (na wypadek przycisku pomiń)
+            video.pause();
+            
+            // Płynne wyjście do menu
+            layer.style.opacity = 0;
+            
+            setTimeout(() => {
+                layer.style.display = 'none';
+                layer.remove(); // usuwamy z DOM
+                
+                // --- START GRY WŁAŚCIWEJ ---
+                startMusic();
+                // Uruchomienie tutoriala po wejściu do menu
+                setTimeout(initTutorial, 1000);
+            }, 1500);
+        }
+
         // --- OBSŁUGA MUZYKI ---
         const bgMusic = document.getElementById('menu-music');
         const musicHint = document.getElementById('music-hint');
 
-        bgMusic.volume = 0.1; 
-
+        bgMusic.volume = 0.1;
         function startMusic() {
             bgMusic.play().then(() => {
                 musicHint.style.opacity = 0;
@@ -736,12 +878,10 @@
         }
 
         document.addEventListener('click', () => {
-            if (bgMusic.paused) {
+            if (bgMusic.paused && !document.getElementById('intro-layer')) {
                 startMusic();
             }
         }, { once: true });
-
-        startMusic();
 
 
         // --- LOGIKA GRY ---
@@ -767,15 +907,12 @@
                 img: "https://imgur.com/pwBirJA.png"
             }
         ];
-
         let queueInterval = null;
         let currentPlayers = 1;
         const targetPlayers = 20;
-
         function startQueue() {
             // Jeśli tutorial trwa i jest na ostatnim etapie, zamknij go
             if(isTutorialActive) closeTutorial();
-
             const queueView = document.getElementById('view-queue');
             queueView.style.display = 'flex';
             
@@ -787,10 +924,9 @@
             document.getElementById('player-count').innerText = currentPlayers;
 
             const minTime = 3000; 
-            const maxTime = 6000; 
+            const maxTime = 6000;
             const totalDuration = Math.floor(Math.random() * (maxTime - minTime + 1)) + minTime;
             const stepTime = totalDuration / 19;
-
             if (queueInterval) clearInterval(queueInterval);
 
             queueInterval = setInterval(() => {
@@ -831,17 +967,15 @@
             treeView.style.display = 'none';
             profileView.style.display = 'none';
             queueView.style.display = 'none';
-            if (queueInterval) clearInterval(queueInterval); 
-            
+            if (queueInterval) clearInterval(queueInterval);
             if (tabName === 'garage') {
-                garageElements.forEach(el => el.style.display = 'flex'); 
+                garageElements.forEach(el => el.style.display = 'flex');
                 document.getElementById('garage-tank-display').style.display = 'block';
                 document.getElementById('garage-stats').style.display = 'block';
                 document.getElementById('garage-slots').style.display = 'flex';
             } 
             else {
                 garageElements.forEach(el => el.style.display = 'none');
-
                 if (tabName === 'tree') {
                     treeView.style.display = 'flex';
                 } else if (tabName === 'profile') {
@@ -852,7 +986,6 @@
 
         function selectTank(index) {
             const data = tanks[index];
-
             document.getElementById('tank-name').innerText = data.name;
             document.getElementById('tank-rank').innerHTML = data.rank;
             
@@ -863,15 +996,13 @@
             document.getElementById('stat-pen').innerText = data.pen;
 
             const imgEl = document.getElementById('main-tank-img');
-            imgEl.style.opacity = 0; 
-            
+            imgEl.style.opacity = 0;
             setTimeout(() => {
                 imgEl.src = data.img;
                 imgEl.onload = () => {
                     imgEl.style.opacity = 1; 
                 };
             }, 300);
-
             const slots = document.querySelectorAll('.crew-slot');
             slots.forEach(s => s.classList.remove('active'));
             slots[index].classList.add('active');
@@ -879,11 +1010,9 @@
 
         window.onload = () => {
             selectTank(0);
-            // Uruchomienie tutoriala po krótkiej chwili
-            setTimeout(initTutorial, 1000);
+            // ZAMIAST OD RAZU TUTORIALA, ODPALAMY INTRO:
+            runIntro();
         };
-
-
         // ------------------------------------------
         // --- KOD SAMOUCZKA (TUTORIAL JS) ---
         // ------------------------------------------
@@ -957,7 +1086,6 @@
             
             // Aktualizacja licznika
             document.getElementById('t-step-counter').innerText = `Samouczek (etap ${currentStepIndex + 1} / 5)`;
-            
             // Podświetlenie elementu
             if (step.highlight) {
                 const el = document.getElementById(step.highlight);
@@ -969,15 +1097,13 @@
             textBox.innerText = "";
             let charIndex = 0;
             isTyping = true;
-
             function typeWriter() {
                 if (!isTutorialActive) return;
-                
                 if (charIndex < step.text.length) {
                     textBox.innerText += step.text.charAt(charIndex);
                     charIndex++;
                     // Losowa prędkość pisania dla realizmu
-                    let speed = Math.random() * 30 + 20; 
+                    let speed = Math.random() * 30 + 20;
                     typeTimeout = setTimeout(typeWriter, speed);
                 } else {
                     isTyping = false;
@@ -997,5 +1123,4 @@
 
     </script>
 </body>
-
 </html>
