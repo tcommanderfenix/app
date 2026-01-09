@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Menu War Thunder Style + Intro</title>
+    <title>Tank Commander - Loading Screen</title>
     <style>
         /* RESET I PODSTAWY */
         * {
@@ -23,7 +23,7 @@
         }
 
         /* ---------------------------------------------------- */
-        /* --- SEKJA INTRO (NOWOŚĆ) --- */
+        /* --- SEKJA INTRO + LOADING (ZMIANY) --- */
         /* ---------------------------------------------------- */
         #intro-layer {
             position: fixed;
@@ -32,67 +32,141 @@
             width: 100%;
             height: 100%;
             background-color: #000;
-            z-index: 99999; /* Musi przykryć wszystko */
+            z-index: 99999;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
-            transition: opacity 1.5s ease; /* Płynne znikanie całego intro */
+            transition: opacity 1.5s ease;
         }
 
+        /* --- NAPISY INTRO --- */
         .intro-text {
             color: #fff;
-            font-size: 36px;
+            font-size: 42px; /* Nieco większe */
             font-weight: bold;
-            letter-spacing: 4px;
+            letter-spacing: 6px;
             text-transform: uppercase;
-            opacity: 0; /* Domyślnie niewidoczne */
+            opacity: 0;
             position: absolute;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
         }
 
-        /* Animacja napisów (pojawienie się i zniknięcie) */
-        @keyframes textFadeInOut {
-            0% { opacity: 0; transform: scale(0.9); }
-            20% { opacity: 1; transform: scale(1); }
-            80% { opacity: 1; transform: scale(1); }
-            100% { opacity: 0; transform: scale(1.1); }
+        /* Wolniejsza animacja napisów (6s) */
+        @keyframes textSlowFade {
+            0% { opacity: 0; transform: scale(0.95); filter: blur(5px); }
+            20% { opacity: 1; transform: scale(1); filter: blur(0px); }
+            80% { opacity: 1; transform: scale(1.05); filter: blur(0px); }
+            100% { opacity: 0; transform: scale(1.1); filter: blur(10px); }
         }
 
-        .animate-text {
-            animation: textFadeInOut 3.5s forwards;
+        .animate-text-slow {
+            animation: textSlowFade 6s forwards; /* Wydłużony czas */
         }
 
-        #intro-video {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
+        /* --- KONTENER PASKU ŁADOWANIA --- */
+        #loading-container {
+            display: none; /* Ukryte na start */
+            width: 60%;
+            max-width: 800px;
+            flex-direction: column;
+            align-items: center;
             opacity: 0;
             transition: opacity 1s ease;
-            display: none; /* Ukryte dopóki napisy nie znikną */
+            position: relative;
         }
 
-        /* Przycisk pomijania (opcjonalny, ukryty, ale przydatny w testach) */
+        /* Kontener dla czołgu i paska, żeby czołg jechał po nim */
+        .progress-wrapper {
+            position: relative;
+            width: 100%;
+            height: 80px; /* Miejsce na czołg + pasek */
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end; /* Pasek na dole */
+        }
+
+        /* Czołg jadący po pasku */
+        #loading-tank {
+            position: absolute;
+            bottom: 25px; /* Wysokość paska + mały odstęp */
+            left: 0;
+            width: 60px;
+            height: auto;
+            transform: translateX(-50%); /* Żeby środek czołgu był na końcu paska */
+            transition: left 0.2s linear; /* Płynne przesuwanie */
+            filter: drop-shadow(0 5px 5px rgba(0,0,0,0.8));
+            z-index: 2;
+        }
+
+        /* Sam pasek (tło) */
+        .progress-bg {
+            width: 100%;
+            height: 20px;
+            background: #222;
+            border: 2px solid #444;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 0 20px rgba(0,0,0,0.8);
+        }
+
+        /* Wypełnienie paska (Czerwony z ukośnymi pasami) */
+        #progress-fill {
+            height: 100%;
+            width: 0%;
+            background-color: #d32f2f; /* Baza czerwona */
+            /* Ukośne paski */
+            background-image: linear-gradient(
+                45deg,
+                rgba(0, 0, 0, 0.3) 25%,
+                transparent 25%,
+                transparent 50%,
+                rgba(0, 0, 0, 0.3) 50%,
+                rgba(0, 0, 0, 0.3) 75%,
+                transparent 75%,
+                transparent
+            );
+            background-size: 30px 30px;
+            transition: width 0.2s linear;
+            animation: moveStripes 1s linear infinite; /* Animacja tekstury */
+        }
+
+        /* Ruch pasków w tle */
+        @keyframes moveStripes {
+            0% { background-position: 0 0; }
+            100% { background-position: 30px 0; }
+        }
+
+        /* Tekst pod paskiem */
+        #loading-text {
+            margin-top: 15px;
+            color: #aaa;
+            font-family: monospace;
+            font-size: 16px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        #loading-percent {
+            color: #ffae00;
+            font-weight: bold;
+        }
+
+        /* Przycisk pomijania (ukryty/awaryjny) */
         #skip-intro {
             position: absolute;
             bottom: 20px;
             right: 20px;
-            color: #555;
-            font-size: 12px;
+            color: #333;
+            font-size: 10px;
             cursor: pointer;
             z-index: 100000;
-            border: 1px solid #333;
-            padding: 5px 10px;
-            opacity: 0;
-            transition: opacity 0.5s;
         }
-        #intro-layer:hover #skip-intro {
-            opacity: 1;
-        }
+        #intro-layer:hover #skip-intro { color: #666; }
 
         /* ---------------------------------------------------- */
-        /* --- RESZTA STYLÓW (GARAŻ) --- */
+        /* --- RESZTA STYLÓW (BEZ ZMIAN) --- */
         /* ---------------------------------------------------- */
 
         /* TŁO GARAŻU */
@@ -121,7 +195,6 @@
             pointer-events: none;
         }
 
-        /* UI INTERFEJS WARSTWA */
         .ui-layer {
             position: relative;
             z-index: 10;
@@ -132,7 +205,6 @@
             pointer-events: none;
         }
 
-        /* GÓRNY PASEK */
         .top-bar {
             background: rgba(10, 10, 10, 0.85);
             backdrop-filter: blur(5px);
@@ -147,7 +219,6 @@
             transition: box-shadow 0.3s;
         }
 
-        /* MENU ZAKŁADKI */
         .menu-items {
             position: absolute;
             left: 20px; 
@@ -164,9 +235,7 @@
             transition: color 0.3s;
         }
 
-        .menu-tab:hover {
-            color: #fff;
-        }
+        .menu-tab:hover { color: #fff; }
 
         .menu-tab.active {
             color: #fff;
@@ -217,12 +286,8 @@
         .silver-lions { color: #b0bec5; }
         .golden-eagles { color: #ffd700; }
 
-        /* --- ELEMENTY GARAŻU --- */
-        .garage-view-element {
-            transition: opacity 0.3s;
-        }
+        .garage-view-element { transition: opacity 0.3s; }
 
-        /* GŁÓWNY POJAZD */
         .vehicle-display {
             position: absolute;
             top: 50%;
@@ -240,7 +305,6 @@
             transition: opacity 0.3s ease;
         }
 
-        /* PANEL STATYSTYK */
         .stats-panel {
             position: absolute;
             left: 20px;
@@ -292,7 +356,6 @@
         .stat-label { color: #ccc; }
         .stat-value { font-weight: bold; color: #fff; }
 
-        /* DOLNY PASEK - SLOTY */
         .bottom-bar {
             background: linear-gradient(0deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.4) 100%);
             padding: 20px;
@@ -352,7 +415,6 @@
             background: #333; padding: 1px 4px; border-radius: 2px;
         }
 
-        /* --- POPUPY --- */
         .fullscreen-overlay {
             position: absolute;
             top: 60px;
@@ -430,9 +492,7 @@
             font-size: 14px;
         }
 
-        .p-stat {
-            text-align: center;
-        }
+        .p-stat { text-align: center; }
         .p-stat span {
             display: block;
             font-size: 18px;
@@ -440,7 +500,6 @@
             font-weight: bold;
         }
 
-        /* --- QUEUE --- */
         .queue-container {
             text-align: center;
             background: rgba(0,0,0,0.8);
@@ -466,10 +525,7 @@
             font-family: monospace;
         }
         
-        .queue-max {
-            font-size: 30px;
-            color: #666;
-        }
+        .queue-max { font-size: 30px; color: #666; }
 
         .loader {
             border: 4px solid #333;
@@ -536,10 +592,7 @@
             z-index: 5;
         }
 
-        /* ---------------------------------------------------- */
-        /* --- SAMOUCZEK (TUTORIAL) --- */
-        /* ---------------------------------------------------- */
-        
+        /* SAMOUCZEK */
         #tutorial-container {
             position: absolute;
             bottom: 20px; 
@@ -552,11 +605,8 @@
             transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
-        #tutorial-container.visible {
-            transform: translateX(0);
-        }
+        #tutorial-container.visible { transform: translateX(0); }
 
-        /* Obrazek Żołnierza */
         .soldier-img {
             width: 140px;
             height: auto;
@@ -566,7 +616,6 @@
             margin-bottom: -10px;
         }
 
-        /* Ramka z tekstem */
         .tutorial-box {
             width: 450px;
             background: rgba(20, 24, 30, 0.95);
@@ -578,7 +627,6 @@
             border-radius: 4px;
         }
 
-        /* Nagłówek w dymku */
         .t-header {
             display: flex;
             justify-content: space-between;
@@ -603,7 +651,6 @@
             border-radius: 3px;
         }
 
-        /* Treść tekstu */
         .t-content {
             font-size: 14px;
             line-height: 1.4;
@@ -612,7 +659,6 @@
             margin-bottom: 15px;
         }
 
-        /* Przyciski tutoriala */
         .t-buttons {
             display: flex;
             justify-content: flex-end;
@@ -630,9 +676,7 @@
             transition: all 0.2s;
         }
 
-        .t-btn:hover {
-            background: #444;
-        }
+        .t-btn:hover { background: #444; }
 
         .t-btn-next {
             background: linear-gradient(180deg, #ffae00 0%, #e65100 100%);
@@ -641,11 +685,8 @@
             font-weight: bold;
         }
         
-        .t-btn-next:hover {
-            filter: brightness(1.2);
-        }
+        .t-btn-next:hover { filter: brightness(1.2); }
 
-        /* Klasa do podświetlania elementów o których mowa */
         .highlight-tutorial {
             box-shadow: 0 0 20px 5px rgba(255, 174, 0, 0.6) !important;
             border-color: #ffae00 !important;
@@ -653,7 +694,6 @@
             position: relative;
         }
 
-        /* Kursor pisania */
         .cursor-blink::after {
             content: '|';
             animation: blink 1s step-end infinite;
@@ -672,12 +712,23 @@
     <div id="intro-text-1" class="intro-text">© Fenix Studios 2026</div>
     <div id="intro-text-2" class="intro-text" style="display:none;">© Tank Commander 2026</div>
     
-    <video id="intro-video" muted>
-        <source src="wejscie.mp4" type="video/mp4">
-        Twój pzeglądarka nie obsługuje wideo.
-    </video>
+    <div id="loading-container">
+        
+        <div class="progress-wrapper">
+            <img src="https://imgur.com/tKvJCgF.png" alt="Loading Tank" id="loading-tank">
+            
+            <div class="progress-bg">
+                <div id="progress-fill"></div>
+            </div>
+        </div>
+
+        <div id="loading-text">
+            <span id="load-status">Inicjalizacja...</span> 
+            <span id="loading-percent">0%</span>
+        </div>
+    </div>
     
-    <div id="skip-intro" onclick="endIntro()">Pomiń intro</div>
+    <div id="skip-intro" onclick="finishLoading(true)">DEV: Pomiń</div>
 </div>
 
 <audio id="menu-music" loop>
@@ -806,62 +857,100 @@
     </div>
     
     <script>
-        // --- LOGIKA INTRO ---
+        // --- LOGIKA INTRO I ŁADOWANIA ---
+        
+        const loadingTexts = [
+            "Ładowanie tekstur...",
+            "Wczytywanie modeli czołgów...",
+            "Ładowanie UI...",
+            "Ładowanie ekonomii...",
+            "Kalibracja dział...",
+            "Tankowanie paliwa...",
+            "Ładowanie samouczka...",
+            "Nawiązywanie połączenia..."
+        ];
+
+        let loadingInterval;
+
         function runIntro() {
             const text1 = document.getElementById('intro-text-1');
             const text2 = document.getElementById('intro-text-2');
-            const video = document.getElementById('intro-video');
+            const loaderContainer = document.getElementById('loading-container');
 
-            // Etap 1: Fenix Studios
-            text1.classList.add('animate-text');
+            // 1. Pierwszy napis (trwa dłużej, klasa animate-text-slow to 6 sekund)
+            text1.classList.add('animate-text-slow');
 
-            // Etap 2: Tank Commander (po 3.5s)
+            // 2. Drugi napis po 5.5s (żeby się lekko zazębiły lub nastąpiły po sobie)
             setTimeout(() => {
-                text1.style.display = 'none'; // ukryj poprzedni
+                text1.style.display = 'none'; 
                 text2.style.display = 'block';
-                text2.classList.add('animate-text');
-            }, 3500);
+                text2.classList.add('animate-text-slow');
+            }, 5500);
 
-            // Etap 3: Wideo (po kolejnych 3.5s, łącznie 7s)
+            // 3. Ekran ładowania po 11s (2 napisy po ok 5.5s)
             setTimeout(() => {
                 text2.style.display = 'none';
-                video.style.display = 'block';
+                loaderContainer.style.display = 'flex';
+                // Mały fade-in dla kontenera
+                setTimeout(() => loaderContainer.style.opacity = 1, 100);
                 
-                // Małe opóźnienie na render i płynne wejście
-                setTimeout(() => {
-                    video.style.opacity = 1;
-                    video.play().catch(e => console.log("Autoplay blocked:", e));
-                    // Odmutuj jeśli przeglądarka pozwoli, inaczej będzie cicho
-                    video.muted = false; 
-                }, 100);
+                startLoadingBar();
 
-            }, 7000);
-
-            // Etap 4: Koniec wideo
-            video.onended = () => {
-                endIntro();
-            };
+            }, 11000);
         }
 
-        function endIntro() {
+        function startLoadingBar() {
+            const bar = document.getElementById('progress-fill');
+            const tank = document.getElementById('loading-tank');
+            const statusText = document.getElementById('load-status');
+            const percentText = document.getElementById('loading-percent');
+
+            let progress = 0;
+            const duration = 15000; // 15 sekund
+            const updateInterval = 50; // odświeżanie co 50ms
+            const steps = duration / updateInterval;
+            const increment = 100 / steps;
+
+            loadingInterval = setInterval(() => {
+                progress += increment;
+
+                if (progress >= 100) {
+                    progress = 100;
+                    finishLoading();
+                }
+
+                // Aktualizacja UI
+                bar.style.width = progress + "%";
+                // Czołg jedzie w lewo (left), ale żeby był na końcu paska
+                tank.style.left = progress + "%";
+                
+                percentText.innerText = Math.floor(progress) + "%";
+
+                // Zmiana tekstu co ~12% postępu
+                const textIndex = Math.floor((progress / 100) * loadingTexts.length);
+                if(textIndex < loadingTexts.length) {
+                    statusText.innerText = loadingTexts[textIndex];
+                } else {
+                    statusText.innerText = "Gotowe!";
+                }
+
+            }, updateInterval);
+        }
+
+        function finishLoading(force = false) {
+            if (loadingInterval) clearInterval(loadingInterval);
+            
             const layer = document.getElementById('intro-layer');
-            const video = document.getElementById('intro-video');
-            
-            // Wycisz i zatrzymaj wideo (na wypadek przycisku pomiń)
-            video.pause();
-            
-            // Płynne wyjście do menu
             layer.style.opacity = 0;
             
             setTimeout(() => {
                 layer.style.display = 'none';
                 layer.remove(); // usuwamy z DOM
                 
-                // --- START GRY WŁAŚCIWEJ ---
+                // --- START GRY ---
                 startMusic();
-                // Uruchomienie tutoriala po wejściu do menu
                 setTimeout(initTutorial, 1000);
-            }, 1500);
+            }, 1000);
         }
 
         // --- OBSŁUGA MUZYKI ---
@@ -911,7 +1000,6 @@
         let currentPlayers = 1;
         const targetPlayers = 20;
         function startQueue() {
-            // Jeśli tutorial trwa i jest na ostatnim etapie, zamknij go
             if(isTutorialActive) closeTutorial();
             const queueView = document.getElementById('view-queue');
             queueView.style.display = 'flex';
@@ -1010,13 +1098,11 @@
 
         window.onload = () => {
             selectTank(0);
-            // ZAMIAST OD RAZU TUTORIALA, ODPALAMY INTRO:
+            // URUCHOMIENIE INTRO
             runIntro();
         };
-        // ------------------------------------------
-        // --- KOD SAMOUCZKA (TUTORIAL JS) ---
-        // ------------------------------------------
 
+        // --- TUTORIAL ---
         const tutorialSteps = [
             {
                 text: "Witaj żołnierzu! Nazywam się Olek i będę Cię szkolił. Zapoznam Cię z interfejsem bazy, abyś był gotowy do walki.",
@@ -1032,7 +1118,7 @@
             },
             {
                 text: "Ulepszaj swoje czołgi, używając punktów ulepszeń w zakładce 'Badania'. Lepsze działo to większa szansa na przetrwanie!",
-                highlight: null // Można by dodać ID do przycisku badania jeśli chcemy precyzyjniej
+                highlight: null
             },
             {
                 text: "To wszystko! Jesteś gotowy. Zagraj swoją pierwszą bitwę klikając duży czerwony przycisk DO BOJU!",
@@ -1061,7 +1147,6 @@
 
         function nextTutorialStep() {
             if (isTyping) {
-                // Jeśli tekst się jeszcze pisze, kliknięcie kończy pisanie natychmiast
                 finishTypingImmediately();
                 return;
             }
@@ -1084,15 +1169,12 @@
             removeHighlight();
             const step = tutorialSteps[currentStepIndex];
             
-            // Aktualizacja licznika
             document.getElementById('t-step-counter').innerText = `Samouczek (etap ${currentStepIndex + 1} / 5)`;
-            // Podświetlenie elementu
             if (step.highlight) {
                 const el = document.getElementById(step.highlight);
                 if (el) el.classList.add('highlight-tutorial');
             }
 
-            // Animacja tekstu
             const textBox = document.getElementById('t-text');
             textBox.innerText = "";
             let charIndex = 0;
@@ -1102,14 +1184,12 @@
                 if (charIndex < step.text.length) {
                     textBox.innerText += step.text.charAt(charIndex);
                     charIndex++;
-                    // Losowa prędkość pisania dla realizmu
                     let speed = Math.random() * 30 + 20;
                     typeTimeout = setTimeout(typeWriter, speed);
                 } else {
                     isTyping = false;
                 }
             }
-            
             clearTimeout(typeTimeout);
             typeWriter();
         }
@@ -1120,7 +1200,6 @@
             document.getElementById('t-text').innerText = step.text;
             isTyping = false;
         }
-
     </script>
 </body>
 </html>
