@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tank Commander</title>
+    <title>Tank Commander - Upgrades & Shop Update</title>
     <style>
         /* RESET I PODSTAWY */
         * {
@@ -23,7 +23,7 @@
         }
 
         /* ---------------------------------------------------- */
-        /* --- SEKJA INTRO + LOADING (ZMIANY) --- */
+        /* --- EKRAN ŁADOWANIA --- */
         /* ---------------------------------------------------- */
         #intro-layer {
             position: fixed;
@@ -40,10 +40,9 @@
             transition: opacity 1.5s ease;
         }
 
-        /* --- NAPISY INTRO --- */
         .intro-text {
             color: #fff;
-            font-size: 42px; /* Nieco większe */
+            font-size: 42px;
             font-weight: bold;
             letter-spacing: 6px;
             text-transform: uppercase;
@@ -52,7 +51,6 @@
             text-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
         }
 
-        /* Wolniejsza animacja napisów (6s) */
         @keyframes textSlowFade {
             0% { opacity: 0; transform: scale(0.95); filter: blur(5px); }
             20% { opacity: 1; transform: scale(1); filter: blur(0px); }
@@ -61,12 +59,11 @@
         }
 
         .animate-text-slow {
-            animation: textSlowFade 6s forwards; /* Wydłużony czas */
+            animation: textSlowFade 6s forwards;
         }
 
-        /* --- KONTENER PASKU ŁADOWANIA --- */
         #loading-container {
-            display: none; /* Ukryte na start */
+            display: none;
             width: 60%;
             max-width: 800px;
             flex-direction: column;
@@ -76,30 +73,27 @@
             position: relative;
         }
 
-        /* Kontener dla czołgu i paska, żeby czołg jechał po nim */
         .progress-wrapper {
             position: relative;
             width: 100%;
-            height: 80px; /* Miejsce na czołg + pasek */
+            height: 80px;
             display: flex;
             flex-direction: column;
-            justify-content: flex-end; /* Pasek na dole */
+            justify-content: flex-end;
         }
 
-        /* Czołg jadący po pasku */
         #loading-tank {
             position: absolute;
-            bottom: 25px; /* Wysokość paska + mały odstęp */
+            bottom: 25px;
             left: 0;
-            width: 60px;
+            width: 80px; /* Nieco większy dla nowego obrazka */
             height: auto;
-            transform: translateX(-50%); /* Żeby środek czołgu był na końcu paska */
-            transition: left 0.2s linear; /* Płynne przesuwanie */
+            transform: translateX(-50%);
+            transition: left 0.2s linear;
             filter: drop-shadow(0 5px 5px rgba(0,0,0,0.8));
             z-index: 2;
         }
 
-        /* Sam pasek (tło) */
         .progress-bg {
             width: 100%;
             height: 20px;
@@ -111,12 +105,10 @@
             box-shadow: 0 0 20px rgba(0,0,0,0.8);
         }
 
-        /* Wypełnienie paska (Czerwony z ukośnymi pasami) */
         #progress-fill {
             height: 100%;
             width: 0%;
-            background-color: #d32f2f; /* Baza czerwona */
-            /* Ukośne paski */
+            background-color: #d32f2f;
             background-image: linear-gradient(
                 45deg,
                 rgba(0, 0, 0, 0.3) 25%,
@@ -129,16 +121,14 @@
             );
             background-size: 30px 30px;
             transition: width 0.2s linear;
-            animation: moveStripes 1s linear infinite; /* Animacja tekstury */
+            animation: moveStripes 1s linear infinite;
         }
 
-        /* Ruch pasków w tle */
         @keyframes moveStripes {
             0% { background-position: 0 0; }
             100% { background-position: 30px 0; }
         }
 
-        /* Tekst pod paskiem */
         #loading-text {
             margin-top: 15px;
             color: #aaa;
@@ -153,7 +143,6 @@
             font-weight: bold;
         }
 
-        /* Przycisk pomijania (ukryty/awaryjny) */
         #skip-intro {
             position: absolute;
             bottom: 20px;
@@ -166,10 +155,9 @@
         #intro-layer:hover #skip-intro { color: #666; }
 
         /* ---------------------------------------------------- */
-        /* --- RESZTA STYLÓW (BEZ ZMIAN) --- */
+        /* --- GŁÓWNE STYLE UI --- */
         /* ---------------------------------------------------- */
 
-        /* TŁO GARAŻU */
         .garage-background {
             position: absolute;
             top: 0;
@@ -283,9 +271,10 @@
             color: #ddd;
         }
         
-        .silver-lions { color: #b0bec5; }
-        .golden-eagles { color: #ffd700; }
+        .silver-lions { color: #4fc3f7; /* Niebieski jak bilet */ font-weight: bold;}
+        .golden-eagles { color: #ffd700; font-weight: bold;}
 
+        /* Elementy widoku */
         .garage-view-element { transition: opacity 0.3s; }
 
         .vehicle-display {
@@ -305,6 +294,7 @@
             transition: opacity 0.3s ease;
         }
 
+        /* LEWY PANEL (Statystyki) */
         .stats-panel {
             position: absolute;
             left: 20px;
@@ -316,6 +306,79 @@
             pointer-events: auto;
         }
 
+        /* PRAWY PANEL (Ulepszenia) */
+        .upgrades-panel {
+            position: absolute;
+            right: 20px; /* Po prawej stronie */
+            top: 100px;
+            width: 320px;
+            background: rgba(0, 0, 0, 0.75);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            pointer-events: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .panel-header {
+            font-size: 16px;
+            color: #ffae00;
+            text-transform: uppercase;
+            border-bottom: 1px solid #444;
+            padding-bottom: 5px;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .upgrade-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255,255,255,0.05);
+            padding: 8px;
+            border-radius: 3px;
+            border: 1px solid #333;
+        }
+
+        .upg-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .upg-name { color: #fff; font-size: 13px; font-weight: bold; }
+        .upg-lvl { color: #888; font-size: 11px; }
+
+        .upg-btn {
+            background: #2e7d32;
+            border: 1px solid #4caf50;
+            color: #fff;
+            padding: 4px 10px;
+            font-size: 11px;
+            cursor: pointer;
+            border-radius: 2px;
+            transition: 0.2s;
+            text-transform: uppercase;
+            min-width: 80px;
+            text-align: center;
+        }
+        
+        .upg-btn:hover { background: #388e3c; }
+        
+        .upg-btn.disabled {
+            background: #444;
+            border-color: #666;
+            color: #aaa;
+            cursor: not-allowed;
+        }
+        
+        .upg-cost {
+            display: block;
+            font-weight: bold;
+            font-size: 10px;
+        }
+
+        /* Wspólne style statystyk */
         .vehicle-name {
             font-size: 24px;
             font-weight: bold;
@@ -356,6 +419,7 @@
         .stat-label { color: #ccc; }
         .stat-value { font-weight: bold; color: #fff; }
 
+        /* DOLNY PASEK */
         .bottom-bar {
             background: linear-gradient(0deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.4) 100%);
             padding: 20px;
@@ -404,9 +468,7 @@
             filter: grayscale(0.5);
         }
 
-        .crew-slot.active .slot-img {
-            filter: grayscale(0);
-        }
+        .crew-slot.active .slot-img { filter: grayscale(0); }
 
         .slot-name { font-size: 11px; color: #ccc; font-weight: bold; }
         .slot-br {
@@ -415,6 +477,7 @@
             background: #333; padding: 1px 4px; border-radius: 2px;
         }
 
+        /* --- POPUPY I SKLEP --- */
         .fullscreen-overlay {
             position: absolute;
             top: 60px;
@@ -446,6 +509,46 @@
             padding: 20px 60px;
         }
 
+        /* Karta w sklepie */
+        .shop-card {
+            background: linear-gradient(135deg, #1e252e 0%, #15181c 100%);
+            border: 1px solid #444;
+            border-top: 3px solid #2196f3; /* Niebieski akcent */
+            padding: 30px;
+            border-radius: 4px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 0 30px rgba(33, 150, 243, 0.2);
+            width: 300px;
+            text-align: center;
+        }
+
+        .shop-icon { font-size: 60px; margin-bottom: 15px; }
+        .shop-title { color: #fff; font-size: 20px; font-weight: bold; margin-bottom: 10px; }
+        .shop-desc { color: #aaa; font-size: 14px; margin-bottom: 20px; }
+        
+        .shop-btn {
+            background: #2196f3;
+            color: #fff;
+            border: none;
+            padding: 10px 30px;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            border-radius: 3px;
+            transition: 0.2s;
+        }
+        
+        .shop-btn:hover { background: #42a5f5; box-shadow: 0 0 15px rgba(33, 150, 243, 0.4); }
+        .shop-btn.claimed {
+            background: #444;
+            color: #888;
+            cursor: default;
+            box-shadow: none;
+        }
+
+        /* PROFIL */
         .profile-card {
             background: linear-gradient(135deg, #2b2b2b 0%, #1a1a1a 100%);
             border: 1px solid #444;
@@ -467,19 +570,8 @@
             background-color: #000;
         }
 
-        .profile-pic {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .profile-nick {
-            font-size: 28px;
-            font-weight: bold;
-            color: #fff;
-            margin-bottom: 10px;
-            letter-spacing: 1px;
-        }
+        .profile-pic { width: 100%; height: 100%; object-fit: cover; }
+        .profile-nick { font-size: 28px; font-weight: bold; color: #fff; margin-bottom: 10px; letter-spacing: 1px; }
 
         .profile-stats-mock {
             width: 100%;
@@ -493,13 +585,9 @@
         }
 
         .p-stat { text-align: center; }
-        .p-stat span {
-            display: block;
-            font-size: 18px;
-            color: #ffae00;
-            font-weight: bold;
-        }
+        .p-stat span { display: block; font-size: 18px; color: #ffae00; font-weight: bold; }
 
+        /* QUEUE */
         .queue-container {
             text-align: center;
             background: rgba(0,0,0,0.8);
@@ -509,22 +597,8 @@
             box-shadow: 0 0 50px rgba(0,0,0,0.5);
         }
 
-        .queue-title {
-            font-size: 24px;
-            color: #aaa;
-            margin-bottom: 20px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
-
-        .queue-counter {
-            font-size: 60px;
-            font-weight: bold;
-            color: #fff;
-            margin: 20px 0;
-            font-family: monospace;
-        }
-        
+        .queue-title { font-size: 24px; color: #aaa; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 2px; }
+        .queue-counter { font-size: 60px; font-weight: bold; color: #fff; margin: 20px 0; font-family: monospace; }
         .queue-max { font-size: 30px; color: #666; }
 
         .loader {
@@ -537,10 +611,7 @@
             margin: 0 auto 20px auto;
         }
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         .btn-exit {
             background: transparent;
@@ -636,34 +707,12 @@
             padding-bottom: 5px;
         }
 
-        .t-name {
-            color: #ffae00;
-            font-weight: bold;
-            font-size: 16px;
-            text-transform: uppercase;
-        }
+        .t-name { color: #ffae00; font-weight: bold; font-size: 16px; text-transform: uppercase; }
+        .t-step { font-size: 11px; color: #888; background: #000; padding: 2px 6px; border-radius: 3px; }
 
-        .t-step {
-            font-size: 11px;
-            color: #888;
-            background: #000;
-            padding: 2px 6px;
-            border-radius: 3px;
-        }
+        .t-content { font-size: 14px; line-height: 1.4; color: #ddd; min-height: 50px; margin-bottom: 15px; }
 
-        .t-content {
-            font-size: 14px;
-            line-height: 1.4;
-            color: #ddd;
-            min-height: 50px;
-            margin-bottom: 15px;
-        }
-
-        .t-buttons {
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-        }
+        .t-buttons { display: flex; justify-content: flex-end; gap: 10px; }
 
         .t-btn {
             background: #333;
@@ -675,7 +724,6 @@
             text-transform: uppercase;
             transition: all 0.2s;
         }
-
         .t-btn:hover { background: #444; }
 
         .t-btn-next {
@@ -684,7 +732,6 @@
             color: #000;
             font-weight: bold;
         }
-        
         .t-btn-next:hover { filter: brightness(1.2); }
 
         .highlight-tutorial {
@@ -698,11 +745,7 @@
             content: '|';
             animation: blink 1s step-end infinite;
         }
-
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0; }
-        }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 
     </style>
 </head>
@@ -713,15 +756,12 @@
     <div id="intro-text-2" class="intro-text" style="display:none;">© Tank Commander 2026</div>
     
     <div id="loading-container">
-        
         <div class="progress-wrapper">
-            <img src="https://imgur.com/tKvJCgF.png" alt="Loading Tank" id="loading-tank">
-            
+            <img src="https://imgur.com/S0rwCgF.png" alt="Loading Tank" id="loading-tank">
             <div class="progress-bg">
                 <div id="progress-fill"></div>
             </div>
         </div>
-
         <div id="loading-text">
             <span id="load-status">Inicjalizacja...</span> 
             <span id="loading-percent">0%</span>
@@ -747,6 +787,15 @@
         <div class="tree-message">Wkrótce...</div>
     </div>
 
+    <div id="view-shop" class="fullscreen-overlay">
+        <div class="shop-card">
+            <div class="shop-icon">🎫</div>
+            <div class="shop-title">Pakiet Startowy</div>
+            <div class="shop-desc">Odbierz darmowe 500 punktów ulepszeń na start swojej kariery!</div>
+            <button id="btn-claim-offer" class="shop-btn" onclick="claimStarterPack()">ODBIERZ</button>
+        </div>
+    </div>
+
     <div id="view-profile" class="fullscreen-overlay">
         <div class="profile-card">
             <div class="profile-pic-container">
@@ -754,8 +803,8 @@
             </div>
             <div class="profile-nick">Player142</div>
             <div class="profile-stats-mock">
-                <div class="p-stat"><span>N/A</span>Bitwy</div>
-                <div class="p-stat"><span>N/A</span>Wygrane</div>
+                <div class="p-stat"><span>0</span>Bitwy</div>
+                <div class="p-stat"><span>0</span>Wygrane</div>
                 <div class="p-stat"><span>Szeregowy</span>Ranga</div>
             </div>
         </div>
@@ -765,15 +814,11 @@
         <div class="queue-container">
             <div class="queue-title">Szukanie sesji gry...</div>
             <div id="queue-loader" class="loader"></div>
-            
              <div class="queue-counter">
                 <span id="player-count">1</span><span class="queue-max">/20</span>
             </div>
-
             <button id="btn-play-game" class="btn-play-now" onclick="alert('Uruchamianie bitwy...')">GRAJ</button>
-            
             <br>
-            
             <button id="btn-exit-queue" class="btn-exit" onclick="exitQueue()">WYJDŹ</button>
         </div>
     </div>
@@ -783,6 +828,7 @@
         <header class="top-bar" id="ui-top-bar">
             <div class="menu-items">
                 <div class="menu-tab active" onclick="switchTab('garage', this)">Garaż</div>
+                <div class="menu-tab" onclick="switchTab('shop', this)">Sklep</div>
                 <div class="menu-tab" onclick="switchTab('tree', this)">Badania</div>
                 <div class="menu-tab" onclick="switchTab('profile', this)">Profil</div>
             </div>
@@ -790,15 +836,14 @@
             <button class="battle-btn" id="ui-battle-btn" onclick="startQueue()">DO BOJU!</button>
 
             <div class="currency">
-                <span class="silver-lions">🎫 100</span>
-                <span class="golden-eagles">📀 2 500</span>
+                <span class="silver-lions" title="Punkty Ulepszeń">🎫 <span id="currency-silver">0</span></span>
+                <span class="golden-eagles" title="Złoto">📀 <span id="currency-gold">0</span></span>
             </div>
         </header>
 
         <aside id="garage-stats" class="stats-panel garage-view-element">
             <div id="tank-name" class="vehicle-name">Panzer III</div>
-            <div id="tank-rank" class="vehicle-rank">
-                </div>
+            <div id="tank-rank" class="vehicle-rank"></div>
             
             <div class="stat-row">
                 <span class="stat-label">Pancerz (kadłub):</span>
@@ -822,6 +867,12 @@
             </div>
         </aside>
 
+        <aside id="garage-upgrades" class="upgrades-panel garage-view-element">
+            <div class="panel-header">Ulepszenia Pojazdu</div>
+            <div id="upgrades-list">
+                </div>
+        </aside>
+
         <footer id="garage-slots" class="bottom-bar garage-view-element">
             <div class="crew-slot active" onclick="selectTank(0)">
                 <span class="slot-br">1</span>
@@ -841,14 +892,12 @@
 
     <div id="tutorial-container">
         <img src="https://imgur.com/lKsRi6s.png" alt="Olek Soldier" class="soldier-img">
-        
         <div class="tutorial-box">
             <div class="t-header">
                 <span class="t-name">Olek</span>
                 <span class="t-step" id="t-step-counter">Samouczek (1 / 5)</span>
             </div>
-            <div class="t-content cursor-blink" id="t-text">
-                </div>
+            <div class="t-content cursor-blink" id="t-text"></div>
             <div class="t-buttons">
                 <button class="t-btn" onclick="closeTutorial()">Zakończ samouczek</button>
                 <button class="t-btn t-btn-next" onclick="nextTutorialStep()">Dalej ➞</button>
@@ -857,6 +906,77 @@
     </div>
     
     <script>
+        // --- ZARZĄDZANIE STANEM GRY (LOCALSTORAGE) ---
+        let playerState = {
+            silver: 0,
+            gold: 0,
+            shopClaimed: false,
+            // Przechowujemy poziomy ulepszeń dla każdego czołgu (indeks 0 i 1)
+            upgrades: {
+                0: { crew: 1, armor: 1, engine: 1, gun: 1 }, // Panzer III
+                1: { crew: 1, armor: 1, engine: 1, gun: 1 }  // T-34
+            }
+        };
+
+        // Koszty ulepszeń (na jaki poziom wchodzimy)
+        const upgradeCosts = {
+            2: 200,
+            3: 350,
+            4: 500
+        };
+
+        function loadState() {
+            const saved = localStorage.getItem('tankCommanderState');
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                // Scalanie (na wypadek nowych pól w przyszłości)
+                playerState = { ...playerState, ...parsed };
+                // Upewnienie się że struktura upgrades istnieje
+                if(!playerState.upgrades) {
+                     playerState.upgrades = {
+                        0: { crew: 1, armor: 1, engine: 1, gun: 1 },
+                        1: { crew: 1, armor: 1, engine: 1, gun: 1 }
+                    };
+                }
+            }
+            updateCurrencyUI();
+        }
+
+        function saveState() {
+            localStorage.setItem('tankCommanderState', JSON.stringify(playerState));
+            updateCurrencyUI();
+        }
+
+        function updateCurrencyUI() {
+            document.getElementById('currency-silver').innerText = playerState.silver;
+            document.getElementById('currency-gold').innerText = playerState.gold;
+        }
+
+        // --- OBSŁUGA SKLEPU ---
+        function updateShopUI() {
+            const btn = document.getElementById('btn-claim-offer');
+            if (playerState.shopClaimed) {
+                btn.innerText = "ODEBRANE";
+                btn.classList.add('claimed');
+                btn.onclick = null;
+            } else {
+                btn.innerText = "ODBIERZ";
+                btn.classList.remove('claimed');
+                btn.onclick = claimStarterPack;
+            }
+        }
+
+        function claimStarterPack() {
+            if (playerState.shopClaimed) return;
+            
+            playerState.silver += 500;
+            playerState.shopClaimed = true;
+            saveState();
+            updateShopUI();
+            alert("Otrzymano 500 punktów ulepszeń!");
+        }
+
+
         // --- LOGIKA INTRO I ŁADOWANIA ---
         
         const loadingTexts = [
@@ -864,8 +984,8 @@
             "Wczytywanie modeli czołgów...",
             "Ładowanie UI...",
             "Ładowanie ekonomii...",
-            "Wczytywanie skryptów",
-            "Ładowanie tekstów",
+            "Kalibracja dział...",
+            "Tankowanie paliwa...",
             "Ładowanie samouczka...",
             "Nawiązywanie połączenia..."
         ];
@@ -877,25 +997,19 @@
             const text2 = document.getElementById('intro-text-2');
             const loaderContainer = document.getElementById('loading-container');
 
-            // 1. Pierwszy napis (trwa dłużej, klasa animate-text-slow to 6 sekund)
             text1.classList.add('animate-text-slow');
 
-            // 2. Drugi napis po 5.5s (żeby się lekko zazębiły lub nastąpiły po sobie)
             setTimeout(() => {
                 text1.style.display = 'none'; 
                 text2.style.display = 'block';
                 text2.classList.add('animate-text-slow');
             }, 5500);
 
-            // 3. Ekran ładowania po 11s (2 napisy po ok 5.5s)
             setTimeout(() => {
                 text2.style.display = 'none';
                 loaderContainer.style.display = 'flex';
-                // Mały fade-in dla kontenera
                 setTimeout(() => loaderContainer.style.opacity = 1, 100);
-                
                 startLoadingBar();
-
             }, 11000);
         }
 
@@ -906,8 +1020,8 @@
             const percentText = document.getElementById('loading-percent');
 
             let progress = 0;
-            const duration = 15000; // 15 sekund
-            const updateInterval = 50; // odświeżanie co 50ms
+            const duration = 15000; 
+            const updateInterval = 50; 
             const steps = duration / updateInterval;
             const increment = 100 / steps;
 
@@ -919,14 +1033,10 @@
                     finishLoading();
                 }
 
-                // Aktualizacja UI
                 bar.style.width = progress + "%";
-                // Czołg jedzie w lewo (left), ale żeby był na końcu paska
                 tank.style.left = progress + "%";
-                
                 percentText.innerText = Math.floor(progress) + "%";
 
-                // Zmiana tekstu co ~12% postępu
                 const textIndex = Math.floor((progress / 100) * loadingTexts.length);
                 if(textIndex < loadingTexts.length) {
                     statusText.innerText = loadingTexts[textIndex];
@@ -939,16 +1049,13 @@
 
         function finishLoading(force = false) {
             if (loadingInterval) clearInterval(loadingInterval);
-            
             const layer = document.getElementById('intro-layer');
             layer.style.opacity = 0;
-            
             setTimeout(() => {
                 layer.style.display = 'none';
-                layer.remove(); // usuwamy z DOM
-                
-                // --- START GRY ---
+                layer.remove();
                 startMusic();
+                // Sprawdzamy czy samouczek był już robiony (można by też zapisać w localStorage), na razie zostawiamy standardowo
                 setTimeout(initTutorial, 1000);
             }, 1000);
         }
@@ -956,16 +1063,15 @@
         // --- OBSŁUGA MUZYKI ---
         const bgMusic = document.getElementById('menu-music');
         const musicHint = document.getElementById('music-hint');
-
         bgMusic.volume = 0.1;
+
         function startMusic() {
             bgMusic.play().then(() => {
                 musicHint.style.opacity = 0;
             }).catch(error => {
-                console.log("Autoplay zablokowany, czekam na interakcję.");
+                console.log("Autoplay zablokowany.");
             });
         }
-
         document.addEventListener('click', () => {
             if (bgMusic.paused && !document.getElementById('intro-layer')) {
                 startMusic();
@@ -996,9 +1102,145 @@
                 img: "https://imgur.com/pwBirJA.png"
             }
         ];
+
+        // Modyfikatory nazw ulepszeń (żeby były uniwersalne)
+        const upgradeTypes = [
+            { id: 'crew', name: "Załoga" },
+            { id: 'armor', name: "Pancerz" },
+            { id: 'engine', name: "Silnik" },
+            { id: 'gun', name: "Działo" }
+        ];
+
+        let currentTankIndex = 0;
+
+        function switchTab(tabName, element) {
+            const tabs = document.querySelectorAll('.menu-tab');
+            tabs.forEach(t => t.classList.remove('active'));
+            if(element) element.classList.add('active');
+
+            const garageElements = document.querySelectorAll('.garage-view-element');
+            const treeView = document.getElementById('view-tree');
+            const shopView = document.getElementById('view-shop');
+            const profileView = document.getElementById('view-profile');
+            const queueView = document.getElementById('view-queue');
+
+            treeView.style.display = 'none';
+            shopView.style.display = 'none';
+            profileView.style.display = 'none';
+            queueView.style.display = 'none';
+            
+            if (tabName === 'garage') {
+                garageElements.forEach(el => el.style.display = 'flex');
+                document.getElementById('garage-tank-display').style.display = 'block';
+                document.getElementById('garage-stats').style.display = 'block';
+                document.getElementById('garage-slots').style.display = 'flex';
+                // Odświeżamy panel ulepszeń
+                renderUpgrades(currentTankIndex); 
+            } else {
+                garageElements.forEach(el => el.style.display = 'none');
+                if (tabName === 'tree') {
+                    treeView.style.display = 'flex';
+                } else if (tabName === 'profile') {
+                    profileView.style.display = 'flex';
+                } else if (tabName === 'shop') {
+                    shopView.style.display = 'flex';
+                    updateShopUI();
+                }
+            }
+        }
+
+        // --- GENEROWANIE PANELU ULEPSZEŃ ---
+        function renderUpgrades(tankIdx) {
+            const list = document.getElementById('upgrades-list');
+            list.innerHTML = ''; // Czyścimy
+
+            const tankData = playerState.upgrades[tankIdx];
+
+            upgradeTypes.forEach(type => {
+                const currentLevel = tankData[type.id];
+                const nextLevel = currentLevel + 1;
+                const isMax = currentLevel >= 4;
+                const cost = isMax ? 0 : upgradeCosts[nextLevel];
+                const canAfford = playerState.silver >= cost;
+
+                const row = document.createElement('div');
+                row.className = 'upgrade-item';
+
+                let btnHtml = '';
+                if (isMax) {
+                    btnHtml = `<button class="upg-btn disabled">MAX POZIOM</button>`;
+                } else {
+                    const btnClass = canAfford ? 'upg-btn' : 'upg-btn disabled';
+                    const onclick = canAfford ? `onclick="buyUpgrade(${tankIdx}, '${type.id}')"` : '';
+                    btnHtml = `
+                        <button class="${btnClass}" ${onclick}>
+                            ULEPSZ <span class="upg-cost">(${cost} 🎫)</span>
+                        </button>
+                    `;
+                }
+
+                row.innerHTML = `
+                    <div class="upg-info">
+                        <span class="upg-name">${type.name}</span>
+                        <span class="upg-lvl">Poziom: ${currentLevel} / 4</span>
+                    </div>
+                    ${btnHtml}
+                `;
+                list.appendChild(row);
+            });
+        }
+
+        function buyUpgrade(tankIdx, typeId) {
+            const currentLevel = playerState.upgrades[tankIdx][typeId];
+            if (currentLevel >= 4) return;
+
+            const nextLevel = currentLevel + 1;
+            const cost = upgradeCosts[nextLevel];
+
+            if (playerState.silver >= cost) {
+                playerState.silver -= cost;
+                playerState.upgrades[tankIdx][typeId] = nextLevel;
+                saveState();
+                renderUpgrades(tankIdx); // Odśwież widok
+            } else {
+                alert("Nie masz wystarczająco punktów!");
+            }
+        }
+
+        function selectTank(index) {
+            currentTankIndex = index;
+            const data = tanks[index];
+            document.getElementById('tank-name').innerText = data.name;
+            document.getElementById('tank-rank').innerHTML = data.rank;
+            
+            document.getElementById('stat-armor').innerText = data.armor;
+            document.getElementById('stat-gun').innerText = data.gun;
+            document.getElementById('stat-reload').innerText = data.reload;
+            document.getElementById('stat-speed').innerText = data.speed;
+            document.getElementById('stat-pen').innerText = data.pen;
+
+            const imgEl = document.getElementById('main-tank-img');
+            imgEl.style.opacity = 0;
+            setTimeout(() => {
+                imgEl.src = data.img;
+                imgEl.onload = () => {
+                    imgEl.style.opacity = 1; 
+                };
+            }, 300);
+            
+            const slots = document.querySelectorAll('.crew-slot');
+            slots.forEach(s => s.classList.remove('active'));
+            slots[index].classList.add('active');
+
+            // Odśwież panel ulepszeń dla wybranego czołgu
+            renderUpgrades(index);
+        }
+
+        // --- KOLEJKA ---
         let queueInterval = null;
         let currentPlayers = 1;
         const targetPlayers = 20;
+
         function startQueue() {
             if(isTutorialActive) closeTutorial();
             const queueView = document.getElementById('view-queue');
@@ -1038,92 +1280,19 @@
             document.getElementById('view-queue').style.display = 'none';
         }
 
-
-        function switchTab(tabName, element) {
-            const tabs = document.querySelectorAll('.menu-tab');
-            tabs.forEach(t => t.classList.remove('active'));
-            
-            if(element) {
-                element.classList.add('active');
-            }
-
-            const garageElements = document.querySelectorAll('.garage-view-element');
-            const treeView = document.getElementById('view-tree');
-            const profileView = document.getElementById('view-profile');
-            const queueView = document.getElementById('view-queue');
-
-            treeView.style.display = 'none';
-            profileView.style.display = 'none';
-            queueView.style.display = 'none';
-            if (queueInterval) clearInterval(queueInterval);
-            if (tabName === 'garage') {
-                garageElements.forEach(el => el.style.display = 'flex');
-                document.getElementById('garage-tank-display').style.display = 'block';
-                document.getElementById('garage-stats').style.display = 'block';
-                document.getElementById('garage-slots').style.display = 'flex';
-            } 
-            else {
-                garageElements.forEach(el => el.style.display = 'none');
-                if (tabName === 'tree') {
-                    treeView.style.display = 'flex';
-                } else if (tabName === 'profile') {
-                    profileView.style.display = 'flex';
-                }
-            }
-        }
-
-        function selectTank(index) {
-            const data = tanks[index];
-            document.getElementById('tank-name').innerText = data.name;
-            document.getElementById('tank-rank').innerHTML = data.rank;
-            
-            document.getElementById('stat-armor').innerText = data.armor;
-            document.getElementById('stat-gun').innerText = data.gun;
-            document.getElementById('stat-reload').innerText = data.reload;
-            document.getElementById('stat-speed').innerText = data.speed;
-            document.getElementById('stat-pen').innerText = data.pen;
-
-            const imgEl = document.getElementById('main-tank-img');
-            imgEl.style.opacity = 0;
-            setTimeout(() => {
-                imgEl.src = data.img;
-                imgEl.onload = () => {
-                    imgEl.style.opacity = 1; 
-                };
-            }, 300);
-            const slots = document.querySelectorAll('.crew-slot');
-            slots.forEach(s => s.classList.remove('active'));
-            slots[index].classList.add('active');
-        }
-
         window.onload = () => {
+            loadState(); // Wczytaj stan gracza na start
             selectTank(0);
-            // URUCHOMIENIE INTRO
             runIntro();
         };
 
         // --- TUTORIAL ---
         const tutorialSteps = [
-            {
-                text: "Witaj żołnierzu! Nazywam się Olek i będę Cię szkolił. Zapoznam Cię z interfejsem bazy, abyś był gotowy do walki.",
-                highlight: null
-            },
-            {
-                text: "Na samej górze masz zakładki nawigacyjne: garaż (tu jesteś), badania i profil. Przełączaj się między nimi, aby zarządzać armią.",
-                highlight: "ui-top-bar"
-            },
-            {
-                text: "Na dole ekranu masz 2 czołgi. Kliknij w nie, aby wybrać maszynę. Więcej będziesz mógł odblokowywać za monety zdobyte w walce.",
-                highlight: "garage-slots"
-            },
-            {
-                text: "Ulepszaj swoje czołgi, używając punktów ulepszeń w zakładce 'Badania'. Lepsze działo to większa szansa na przetrwanie!",
-                highlight: null
-            },
-            {
-                text: "To wszystko! Jesteś gotowy. Zagraj swoją pierwszą bitwę klikając duży czerwony przycisk DO BOJU!",
-                highlight: "ui-battle-btn"
-            }
+            { text: "Witaj żołnierzu! Olek melduje się na rozkaz. Zapoznam Cię z nowym systemem bazy.", highlight: null },
+            { text: "Spójrz na górę - dodaliśmy 'Sklep'. Odbierzesz tam darmowe zaopatrzenie.", highlight: "ui-top-bar" },
+            { text: "Po prawej stronie widzisz panel ulepszeń. Możesz tu wzmacniać załogę, pancerz i uzbrojenie wybranego czołgu.", highlight: "garage-upgrades" },
+            { text: "Ulepszenia kosztują Niebieskie Bilety (🎫). Używaj ich mądrze! Każdy czołg ulepszasz osobno.", highlight: "garage-upgrades" },
+            { text: "Jesteś gotowy! Wybierz maszynę i ruszaj do boju!", highlight: "ui-battle-btn" }
         ];
 
         let currentStepIndex = 0;
@@ -1150,7 +1319,6 @@
                 finishTypingImmediately();
                 return;
             }
-
             currentStepIndex++;
             if (currentStepIndex >= tutorialSteps.length) {
                 closeTutorial();
@@ -1203,4 +1371,3 @@
     </script>
 </body>
 </html>
-
